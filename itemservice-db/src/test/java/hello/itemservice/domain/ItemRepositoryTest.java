@@ -5,19 +5,38 @@ import hello.itemservice.repository.ItemSearchCond;
 import hello.itemservice.repository.ItemUpdateDto;
 import hello.itemservice.repository.memory.MemoryItemRepository;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.TransactionStatus;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.DefaultTransactionDefinition;
 
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
-
-@SpringBootTest
+//@SpringBootApplication 설정이 과거에는 MemoryConfig.class 를 사용하다가 이제는
+//JdbcTemplateV3Config.class 를 사용하도록 변경되었다. 따라서 테스트도 JdbcTemplate 을 통해 실
+//제 데이터베이스를 호출하게 된다.
+//MemoryItemRepository JdbcTemplateItemRepositoryV3
+@Transactional //트랜잭션 간단 사용법
+@SpringBootTest// main의 springBootApplication을 찾아서 해당 파일의 설정이 사용됨.
 class ItemRepositoryTest {
 
     @Autowired
     ItemRepository itemRepository;
+
+//    @Autowired
+//    PlatformTransactionManager transactionManager;
+//    TransactionStatus status;
+//
+//    @BeforeEach
+//    void beforeEach() {
+//        //트랜잭션 시작
+//        status = transactionManager.getTransaction(new DefaultTransactionDefinition());
+//    } => 이 과정을 트랜잭션 어노테이션으로 간단하게 해결
 
     @AfterEach
     void afterEach() {
@@ -25,6 +44,8 @@ class ItemRepositoryTest {
         if (itemRepository instanceof MemoryItemRepository) {
             ((MemoryItemRepository) itemRepository).clearStore();
         }
+        // 트랜잭션 롤백
+//        transactionManager.rollback(status);
     }
 
     @Test
